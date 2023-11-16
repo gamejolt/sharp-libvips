@@ -132,6 +132,10 @@ without_prerelease() {
 
 # Check for newer versions
 # Skip by setting the VERSION_LATEST_REQUIRED environment variable to "false"
+
+# Game Jolt: allow us to freeze dependencies.
+VERSION_LATEST_REQUIRED=false
+
 ALL_AT_VERSION_LATEST=true
 version_latest() {
   if [ "$VERSION_LATEST_REQUIRED" == "false" ]; then
@@ -460,7 +464,10 @@ if [ "$LINUX" = true ]; then
   printf "{local:g_param_spec_types;};" > vips.map
 fi
 # Disable building man pages, gettext po files, tools, and (fuzz-)tests
-sed -i'.bak' "/subdir('man')/{N;N;N;N;d;}" meson.build
+# Game Jolt: we do want to build the CLI, so avoid removing 'tools' which is the 3rd line.
+# sed -i'.bak' "/subdir('man')/{N;N;N;N;d;}" meson.build
+sed -i'.bak' "/subdir('man')/{N;N;D;N;d;}" meson.build
+
 CFLAGS="${CFLAGS} -O3" CXXFLAGS="${CXXFLAGS} -O3" meson setup _build --default-library=shared --buildtype=release --strip --prefix=${TARGET} ${MESON} \
   -Ddeprecated=false -Dintrospection=disabled -Dmodules=disabled -Dcfitsio=disabled -Dfftw=disabled -Djpeg-xl=disabled \
   ${WITHOUT_HIGHWAY:+-Dhighway=disabled} -Dorc=disabled -Dmagick=disabled -Dmatio=disabled -Dnifti=disabled -Dopenexr=disabled \
@@ -563,6 +570,8 @@ mv lib-filtered lib
 tar chzf ${PACKAGE}/libvips-${VERSION_VIPS}-${PLATFORM}.tar.gz \
   include \
   lib \
+  `# Game Jolt: add 'bin' folder` \
+  bin \
   *.json \
   THIRD-PARTY-NOTICES.md
 
