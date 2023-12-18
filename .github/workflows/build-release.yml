@@ -39,7 +39,7 @@ jobs:
         #   - os: macos-11
         #     platform: 'darwin-arm64v8'
         include:
-          - os: ubuntu-22.04
+          - os: buildjet-4vcpu-ubuntu-2204
             platform: 'linux-x64'
           - os: buildjet-4vcpu-ubuntu-2204-arm
             platform: 'linux-arm64v8'
