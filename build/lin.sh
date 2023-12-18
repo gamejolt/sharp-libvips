@@ -120,6 +120,8 @@ VERSION_RSVG=2.57.0
 VERSION_AOM=3.8.0
 VERSION_HEIF=1.17.5
 VERSION_CGIF=0.3.2
+# Game Jolt: added ImageMagick
+VERSION_IMAGICK=7.1.1-23
 
 # Remove patch version component
 without_patch() {
@@ -183,6 +185,8 @@ version_latest "rsvg" "$VERSION_RSVG" "5420"
 version_latest "aom" "$VERSION_AOM" "17628"
 version_latest "heif" "$VERSION_HEIF" "strukturag/libheif"
 version_latest "cgif" "$VERSION_CGIF" "dloebl/cgif"
+# Game Jolt: added ImageMagick
+version_latest "imagick" "$VERSION_IMAGICK" "1372"
 if [ "$ALL_AT_VERSION_LATEST" = "false" ]; then exit 1; fi
 
 # Download and build dependencies from source
@@ -447,6 +451,19 @@ CFLAGS="${CFLAGS} -O3" meson setup _build --default-library=static --buildtype=r
   -Dtests=false
 meson install -C _build --tag devel
 
+# Game Jolt: build ImageMagick with minimal configuration.
+# We are interested in loading .pam images only using it.
+mkdir ${DEPS}/imagick
+$CURL https://imagemagick.org/archive/ImageMagick-$(without_prerelease $VERSION_IMAGICK).tar.gz | tar xzC ${DEPS}/imagick --strip-components=1
+cd ${DEPS}/imagick
+./configure --host=${CHOST} --prefix=${TARGET} --enable-static --disable-shared --disable-dependency-tracking \
+    --without-magick-plus-plus --without-bzlib --without-zip --without-zlib --without-zstd \
+    --without-djvu --without-fontconfig --without-freetype --without-raqm --without-gdi32 \
+    --without-dmr --without-heic --without-jbig --without-jpeg --without-jxl --without-lcms \
+    --without-openjp2 --without-lqr --without-lzma --without-openexr --without-pango \
+    --without-png --without-tiff --without-webp --without-xml
+make install-strip
+
 mkdir ${DEPS}/vips
 $CURL https://github.com/libvips/libvips/releases/download/v${VERSION_VIPS}/vips-$(without_prerelease $VERSION_VIPS).tar.xz | tar xJC ${DEPS}/vips --strip-components=1
 cd ${DEPS}/vips
@@ -470,7 +487,8 @@ sed -i'.bak' "/subdir('man')/{N;N;D;N;d;}" meson.build
 
 CFLAGS="${CFLAGS} -O3" CXXFLAGS="${CXXFLAGS} -O3" meson setup _build --default-library=shared --buildtype=release --strip --prefix=${TARGET} ${MESON} \
   -Ddeprecated=false -Dintrospection=disabled -Dmodules=disabled -Dcfitsio=disabled -Dfftw=disabled -Djpeg-xl=disabled \
-  ${WITHOUT_HIGHWAY:+-Dhighway=disabled} -Dorc=disabled -Dmagick=disabled -Dmatio=disabled -Dnifti=disabled -Dopenexr=disabled \
+  # Game Jolt: enabled ImageMagick.
+  ${WITHOUT_HIGHWAY:+-Dhighway=disabled} -Dorc=disabled -Dmagick=enabled -Dmatio=disabled -Dnifti=disabled -Dopenexr=disabled \
   -Dopenjpeg=disabled -Dopenslide=disabled -Dpdfium=disabled -Dpoppler=disabled -Dquantizr=disabled \
   -Dppm=false -Danalyze=false -Dradiance=false \
   ${LINUX:+-Dcpp_link_args="$LDFLAGS -Wl,-Bsymbolic-functions -Wl,--version-script=$DEPS/vips/vips.map $EXCLUDE_LIBS"}
