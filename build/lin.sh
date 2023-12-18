@@ -454,7 +454,7 @@ meson install -C _build --tag devel
 # Game Jolt: build ImageMagick with minimal configuration.
 # We are interested in loading .pam images only using it.
 mkdir ${DEPS}/imagick
-$CURL https://imagemagick.org/archive/ImageMagick-$(without_prerelease $VERSION_IMAGICK).tar.gz | tar xzC ${DEPS}/imagick --strip-components=1
+$CURL https://imagemagick.org/archive/ImageMagick-${VERSION_IMAGICK}.tar.gz | tar xzC ${DEPS}/imagick --strip-components=1
 cd ${DEPS}/imagick
 ./configure --host=${CHOST} --prefix=${TARGET} --enable-static --disable-shared --disable-dependency-tracking \
     --without-magick-plus-plus --without-bzlib --without-zip --without-zlib --without-zstd \
