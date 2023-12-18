@@ -92,12 +92,12 @@ unset PKG_CONFIG_PATH
 CURL="curl --silent --location --retry 3 --retry-max-time 30"
 
 # Dependency version numbers
-VERSION_ZLIB_NG=2.1.4
+VERSION_ZLIB_NG=2.1.5
 VERSION_FFI=3.4.4
-VERSION_GLIB=2.78.1
-VERSION_XML2=2.11.5
+VERSION_GLIB=2.78.3
+VERSION_XML2=2.12.3
 VERSION_EXIF=0.6.24
-VERSION_LCMS2=2.15
+VERSION_LCMS2=2.16
 VERSION_MOZJPEG=4.1.5
 VERSION_PNG16=1.6.40
 VERSION_SPNG=0.7.4
@@ -117,8 +117,8 @@ VERSION_CAIRO=1.18.0
 VERSION_FRIBIDI=1.0.13
 VERSION_PANGO=1.51.0
 VERSION_RSVG=2.57.0
-VERSION_AOM=3.7.0
-VERSION_HEIF=1.17.3
+VERSION_AOM=3.8.0
+VERSION_HEIF=1.17.5
 VERSION_CGIF=0.3.2
 
 # Remove patch version component
@@ -256,7 +256,7 @@ $CURL https://storage.googleapis.com/aom-releases/libaom-${VERSION_AOM}.tar.gz |
 cd ${DEPS}/aom
 if [ "${PLATFORM%-*}" == "linuxmusl" ]; then
   # https://bugs.chromium.org/p/aomedia/issues/detail?id=2754
-  $CURL https://git.alpinelinux.org/aports/plain/main/aom/fix-stack-size-e53da0b.patch | patch -p1
+  : # $CURL https://git.alpinelinux.org/aports/plain/main/aom/fix-stack-size-e53da0b.patch | patch -p1 # TODO: requires updated patch
 fi
 mkdir aom_build
 cd aom_build
@@ -352,7 +352,7 @@ meson install -C _build --tag devel
 sed -i'.bak' "s/^\(Requires:.*\)/\1 libjpeg, libpng16/" ${TARGET}/lib/pkgconfig/gdk-pixbuf-2.0.pc
 
 mkdir ${DEPS}/freetype
-$CURL https://gitlab.freedesktop.org/freetype/freetype/-/archive/VER-${VERSION_FREETYPE//./-}/freetype-VER-${VERSION_FREETYPE//./-}.tar.bz2 | tar xjC ${DEPS}/freetype --strip-components=1
+$CURL https://github.com/freetype/freetype/archive/VER-${VERSION_FREETYPE//./-}.tar.gz | tar xzC ${DEPS}/freetype --strip-components=1
 cd ${DEPS}/freetype
 meson setup _build --default-library=static --buildtype=release --strip --prefix=${TARGET} ${MESON} \
   -Dzlib=enabled -Dpng=disabled -Dharfbuzz=disabled -Dbrotli=disabled -Dbzip2=disabled
